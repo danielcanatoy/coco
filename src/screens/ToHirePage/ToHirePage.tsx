@@ -7,12 +7,27 @@ import { CompanyWorkers } from "./sections/CompanyWorkers";
 import { CompanyApplicants } from "./sections/CompanyApplicants";
 import { CompanyMessages } from "./sections/CompanyMessages";
 import { CompanyProfile } from "./sections/CompanyProfile";
+import { useNavigate } from "react-router-dom";
 
-type ActiveSection = "home" | "projects" | "listings" | "workers" | "applicants" | "messages";
+type ActiveSection =
+  | "home"
+  | "projects"
+  | "listings"
+  | "workers"
+  | "applicants"
+  | "messages";
 
 export const ToHirePage = (): JSX.Element => {
   const [activeSection, setActiveSection] = useState<ActiveSection>("home");
   const [showProfileEdit, setShowProfileEdit] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    navigate("/login");
+  };
 
   return (
     <div className="bg-[#d4b896] w-full min-h-screen relative overflow-hidden">
@@ -104,7 +119,10 @@ export const ToHirePage = (): JSX.Element => {
           </div>
 
           <div className="mt-auto p-6">
-            <Button className="w-full bg-white hover:bg-gray-100 text-black rounded-lg h-[48px] [font-family:'Jost',Helvetica] font-semibold text-base">
+            <Button
+              onClick={handleLogout}
+              className="w-full bg-white hover:bg-gray-100 text-black rounded-lg h-[48px]"
+            >
               Logout
             </Button>
           </div>

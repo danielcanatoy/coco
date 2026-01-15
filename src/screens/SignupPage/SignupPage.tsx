@@ -18,11 +18,14 @@ export const SignupPage = (): JSX.Element => {
 
   const handleSignup = () => {
     console.log("Signup attempt:", { email, password, userType });
-    if (userType === "worker") {
-      navigate("/worker");
-    } else if (userType === "employer") {
-      navigate("/to-hire");
-    }
+
+    navigate(userType === "worker" ? "/worker" : "/to-hire", {
+      state: {
+        email,
+        password,
+        userType,
+      },
+    });
   };
 
   return (

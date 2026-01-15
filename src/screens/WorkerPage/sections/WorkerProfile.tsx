@@ -1,42 +1,110 @@
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Card, CardContent } from "../../../components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+interface WorkerFormData {
+  firstName: string;
+  middleInitial: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  email: string;
+  mobileNumber: string;
+  password: string;
+  skills: string[];
+  experience: string;
+  certifications: string;
+  availability: string;
+  preferredWages: string;
+  workLocation: string;
+  languages: string[];
+  role: string | null;
+}
 
 interface WorkerProfileProps {
   onClose: () => void;
 }
 
 export const WorkerProfile = ({ onClose }: WorkerProfileProps): JSX.Element => {
-  const [formData, setFormData] = useState({
-    firstName: "John",
-    middleInitial: "M",
-    lastName: "Doe",
-    dateOfBirth: "01/15/1990",
-    gender: "Male",
-    email: "john@example.com",
-    mobileNumber: "555-1234",
-    emailAddress: "john@example.com",
-    password: "••••••••",
-    skills: "Steel Working, Welding, Construction",
-    experience: "5+ years",
-    certifications: "OSHA Safety Certification",
-    availability: "Full Time",
-    preferredWages: "$60-80/hr",
-    workLocation: "Within 25km",
-    language: "English, Spanish",
+  const location = useLocation();
+  const { email, password, userType } = location.state || {};
+
+  const [formData, setFormData] = useState<WorkerFormData>({
+    firstName: "",
+    middleInitial: "",
+    lastName: "",
+    dateOfBirth: "",
+    gender: "",
+    email: email || "",
+    mobileNumber: "",
+    password: password || "",
+    skills: [],
+    experience: "",
+    certifications: "",
+    availability: "",
+    preferredWages: "",
+    workLocation: "",
+    languages: [],
+    role: userType,
   });
 
-  const handleChange = (field: string, value: string) => {
+  useEffect(() => {
+    if (!email) return;
+
+    fetch(`http://localhost:5000/api/worker/profile?email=${email}`)
+      .then((res) => {
+        if (res.status === 404) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (data?.exists) {
+          setFormData((prev) => ({
+            ...prev,
+            ...data.data,
+            dateOfBirth: toDateInputValue(data.data.dateOfBirth),
+          }));
+        }
+      })
+      .catch((err) => console.error("Failed to load worker profile", err));
+  }, [email]);
+
+  const handleChange = <K extends keyof WorkerFormData>(
+    field: K,
+    value: WorkerFormData[K]
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const handleSave = () => {
-    console.log("Profile saved:", formData);
-    onClose();
+  const toDateInputValue = (value?: string) => {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    // Convert to UTC+8 (8 hours = 8 * 60 * 60 * 1000)
+    const utc8Time = date.getTime() + 8 * 60 * 60 * 1000;
+    const utc8Date = new Date(utc8Time);
+
+    return utc8Date.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+
+  const handleSave = async () => {
+    const res = await fetch("http://localhost:5000/api/worker/profile", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (data.created) alert("Profile created!");
+    if (data.updated) alert("Profile updated!");
+
+    window.location.reload();
   };
 
   return (
@@ -99,8 +167,8 @@ export const WorkerProfile = ({ onClose }: WorkerProfileProps): JSX.Element => {
                 Date of Birth
               </label>
               <Input
-                type="text"
-                value={formData.dateOfBirth}
+                type="date"
+                value={toDateInputValue(formData.dateOfBirth)}
                 onChange={(e) => handleChange("dateOfBirth", e.target.value)}
                 className="w-full h-[44px] bg-gray-100 rounded-lg px-4 [font-family:'Jost',Helvetica] font-normal text-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
               />
@@ -160,9 +228,13 @@ export const WorkerProfile = ({ onClose }: WorkerProfileProps): JSX.Element => {
               </label>
               <Input
                 type="text"
-                value={formData.skills}
-                onChange={(e) => handleChange("skills", e.target.value)}
-                className="w-full h-[44px] bg-gray-100 rounded-lg px-4 [font-family:'Jost',Helvetica] font-normal text-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                value={formData.skills.join(", ")}
+                onChange={(e) =>
+                  handleChange(
+                    "skills",
+                    e.target.value.split(",").map((s) => s.trim())
+                  )
+                }
               />
             </div>
 
@@ -223,6 +295,22 @@ export const WorkerProfile = ({ onClose }: WorkerProfileProps): JSX.Element => {
                 value={formData.workLocation}
                 onChange={(e) => handleChange("workLocation", e.target.value)}
                 className="w-full h-[44px] bg-gray-100 rounded-lg px-4 [font-family:'Jost',Helvetica] font-normal text-black border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+            </div>
+
+            <div>
+              <label className="block [font-family:'Jost',Helvetica] font-semibold text-black text-sm mb-2">
+                Languages
+              </label>
+              <Input
+                type="text"
+                value={formData.languages.join(", ")}
+                onChange={(e) =>
+                  handleChange(
+                    "languages",
+                    e.target.value.split(",").map((s) => s.trim())
+                  )
+                }
               />
             </div>
           </div>

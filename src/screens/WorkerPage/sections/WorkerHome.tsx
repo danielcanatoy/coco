@@ -1,4 +1,5 @@
 import { Card, CardContent } from "../../../components/ui/card";
+import Time from "../../../components/ui/time";
 
 export const WorkerHome = (): JSX.Element => {
   return (
@@ -8,7 +9,7 @@ export const WorkerHome = (): JSX.Element => {
           Hello User!
         </h1>
         <span className="[font-family:'Jost',Helvetica] font-normal text-gray-600 text-base">
-          08:36:18 PM
+          <Time />
         </span>
       </div>
 

@@ -2,6 +2,7 @@ import { Card, CardContent } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { useState } from "react";
+import Time from "../../../components/ui/time";
 
 interface Message {
   id: number;
@@ -95,8 +96,12 @@ export const WorkerMessages = (): JSX.Element => {
                   : "bg-white hover:bg-gray-100"
               }`}
             >
-              <p className="font-semibold text-black text-sm">{conv.clientName}</p>
-              <p className="normal text-gray-600 text-xs mb-1">{conv.clientRole}</p>
+              <p className="font-semibold text-black text-sm">
+                {conv.clientName}
+              </p>
+              <p className="normal text-gray-600 text-xs mb-1">
+                {conv.clientRole}
+              </p>
               <p className="normal text-gray-700 text-xs truncate">
                 {conv.lastMessage}
               </p>
@@ -123,9 +128,7 @@ export const WorkerMessages = (): JSX.Element => {
                 }
               </p>
             </div>
-            <span className="[font-family:'Jost',Helvetica] font-normal text-gray-600 text-sm">
-              08:36:18 PM
-            </span>
+            <Time />
           </div>
         </div>
 
@@ -133,13 +136,13 @@ export const WorkerMessages = (): JSX.Element => {
           {mockMessages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.isWorkerMessage ? "justify-end" : "justify-start"}`}
+              className={`flex ${
+                msg.isWorkerMessage ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-xs p-4 rounded-lg ${
-                  msg.isWorkerMessage
-                    ? "bg-[#ff9d00]"
-                    : "bg-gray-200"
+                  msg.isWorkerMessage ? "bg-[#ff9d00]" : "bg-gray-200"
                 }`}
               >
                 <p className="[font-family:'Jost',Helvetica] font-semibold text-black text-sm mb-1">
